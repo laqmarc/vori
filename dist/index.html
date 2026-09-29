@@ -8,6 +8,7 @@
   <title>Vori · Piano tàctil</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2327272e'/%3E%3Cpath d='M7 8h5v17H7zm7 0h5v17h-5zm7 0h4v17h-4z' fill='%23edeadd'/%3E%3Cpath d='M11 8h4v10h-4zm7 0h4v10h-4z' fill='%23688cff'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="features.css">
   <script type="module" src="app.js"></script>
 </head>
 <body>
@@ -16,13 +17,14 @@
       <div class="brand"><span class="brand-icon" aria-hidden="true">▥</span><h1>vori</h1><span class="brand-sub">PIANO TÀCTIL</span></div>
       <div class="header-actions"><button id="help-button" class="icon-button" aria-label="Obre l’ajuda">?</button><button id="fullscreen" class="icon-button" aria-label="Pantalla completa">⛶</button><button id="power" class="power"><span class="led"></span><span id="power-label">Activa el so</span></button></div>
     </header>
+    <div class="workspace-bar"><div class="mode-switch" aria-label="Mode de treball"><button id="mode-play" aria-pressed="false">Tocar</button><button id="mode-edit" aria-pressed="true">Editar so</button></div><div class="library-actions"><button id="library-button">Els meus sons</button><button id="save-sound">Desa el so</button></div></div>
     <section class="instrument" aria-label="Instrument">
       <div class="topline"><span>INSTRUMENT 01</span><span class="topline-right">POLIFÒNIC · MULTITÀCTIL</span></div>
       <section class="sound-section" aria-labelledby="sounds-heading">
         <div class="section-label"><h2 id="sounds-heading">01 <span>Tria el teu so</span></h2><span id="sound-count">01 / 06</span></div>
         <div id="presets" class="presets" aria-label="Sons"></div>
       </section>
-      <div class="rack">
+      <div id="sound-editor"><div class="rack">
         <section class="display-panel" aria-label="So seleccionat">
           <div class="display-top"><span id="sound-family">PIANO ACÚSTIC</span><span id="voices">0 veus</span></div>
           <h2 id="sound-name">Piano de cua</h2>
@@ -42,6 +44,14 @@
         </section>
       </div>
       <details class="envelope"><summary>Atac i durada <span>Modela l’inici i el final de cada nota</span></summary><div id="envelope-controls" class="envelope-controls"></div></details>
+      </div>
+      <section class="loop-station" aria-labelledby="loop-heading">
+        <div class="loop-heading"><h2 id="loop-heading"><span class="tape-icon" aria-hidden="true">◎◎</span> Bucle <span id="layer-count">0 / 8 capes</span></h2><output id="loop-status" role="status">La teva primera idea comença aquí</output></div>
+        <div class="loop-controls"><div class="transport"><button id="record-loop" class="record-button"><span aria-hidden="true">●</span> Grava</button><button id="play-loop" disabled>Reprodueix</button><button id="undo-loop" disabled>Desfés capa</button></div><div class="loop-settings"><label>Tempo <input id="loop-bpm" type="number" min="60" max="180" step="1" value="100" inputmode="numeric"><span>BPM</span></label><label><span class="sr-only">Durada del bucle</span><select id="loop-bars"><option value="1">1 compàs</option><option value="2" selected>2 compassos</option><option value="4">4 compassos</option></select></label><button id="loop-click" aria-pressed="true" title="Activa o desactiva el metrònom">Metrònom</button></div></div>
+        <div class="loop-timeline" aria-hidden="true"><div id="loop-progress"></div><span></span><span></span><span></span></div>
+        <div id="loop-layers" class="loop-layers" aria-label="Capes del bucle"></div>
+        <div class="loop-footer"><span id="loop-hint">4 pulsacions d’entrada · Grava una frase i afegeix-hi capes</span><div><button id="new-loop" class="text-button" disabled>Nou bucle</button><button id="export-loop" class="text-button" disabled>Descarrega WAV</button></div></div>
+      </section>
       <section class="play-section" aria-label="Teclat de piano">
         <div class="keyboard-toolbar">
           <div class="octave-control"><span>Octava</span><button id="octave-down" aria-label="Baixa una octava">−</button><output id="octave">4</output><button id="octave-up" aria-label="Puja una octava">+</button></div>
@@ -50,11 +60,15 @@
         <div class="keybed"><div id="keyboard" class="keyboard" aria-label="Tecles del piano"></div></div>
         <div class="under-keys"><span class="touch-hint">Toca, fes acords i llisca entre les tecles.</span><span class="desktop-hint">A S D F G H J K · Espai: pedal</span><label class="volume">Volum <input id="volume" type="range" min="0" max="100" value="65"><output id="volume-value">65%</output></label></div>
       </section>
-      <div class="bottomline"><span>FET PER TOCAR.</span><span>VORI / 001</span></div>
+      <div class="bottomline"><span>FET PER TOCAR.</span><span>VORI / 002</span></div>
     </section>
-    <footer><span>El teu petit espai per fer música.</span><button id="credits-button" class="text-button">Ajuda i crèdits</button></footer>
+    <p id="feature-message" class="feature-message" role="status"></p>
+    <footer><span>Bucles d’aquesta sessió · Exporta’ls per conservar-los</span><button id="credits-button" class="text-button">Ajuda i crèdits</button></footer>
   </main>
   <dialog id="help"><div class="dialog-heading"><h2>A les teves mans.</h2><button id="close-help" class="icon-button" aria-label="Tanca l’ajuda">×</button></div><p>Activa el so i toca. Pots prémer diverses tecles alhora per fer acords, o lliscar un dit pel teclat.</p><ul><li><strong>Sons:</strong> cada so carrega els seus ajustos inicials.</li><li><strong>Filtre:</strong> el passabaix suavitza els aguts; el passaalt retalla els greus; el passabanda destaca una zona.</li><li><strong>Ressonància:</strong> accentua la freqüència del filtre.</li><li><strong>Reverberació i eco:</strong> afegeixen espai i repeticions.</li><li><strong>Pedal:</strong> manté les notes després de deixar les tecles.</li><li><strong>Volum tàctil:</strong> toca més avall a la tecla per donar més força a la nota.</li></ul><p>A l’ordinador: <kbd>A W S E D F T G Y H U J K O L P ;</kbd>. Mantén <kbd>Espai</kbd> per al pedal i prem <kbd>Esc</kbd> per aturar-ho tot. Les dreceres s’aturen mentre ajustes un control.</p><p>Al mòbil, gira la pantalla per disposar de més espai. Si no sona, comprova el volum multimèdia i el mode silenciós del dispositiu.</p><p id="sample-credit" class="credits">Piano: Salamander Grand Piano, Alexander Holm. <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener noreferrer">CC BY 3.0</a>. Mostres MP3 de <a href="https://github.com/Tonejs/audio/tree/master/salamander" target="_blank" rel="noopener noreferrer">Tone.js</a>, afinades durant la reproducció. La resta de sons es generen al navegador.</p></dialog>
   <noscript>Cal activar JavaScript per tocar el piano.</noscript>
+  <dialog id="sound-library"><div class="dialog-heading"><h2>Els meus sons</h2><button class="icon-button" data-close="sound-library" aria-label="Tanca la biblioteca">×</button></div><p>Els teus sons es desen al teu compte. Els trobaràs quan tornis a aquesta web.</p><p id="library-status" role="status"></p><div id="saved-sounds"></div><button id="reload-library">Torna a carregar</button></dialog>
+  <dialog id="save-dialog"><div class="dialog-heading"><h2>Desa aquest so</h2><button class="icon-button" data-close="save-dialog" aria-label="Tanca sense desar">×</button></div><form id="save-form"><label for="sound-title">Nom del so</label><input id="sound-title" name="name" maxlength="40" required autocomplete="off" placeholder="El meu piano nocturn"><p class="dialog-note">Desarem l’instrument, el filtre i els efectes.</p><p id="save-status" role="status"></p><button id="confirm-save" class="power" type="submit">Desa el so</button></form></dialog>
+  <dialog id="clear-dialog"><h2>Comença un bucle nou</h2><p>Es perdran les capes d’aquesta sessió. Descarrega el WAV abans si les vols conservar.</p><div class="dialog-actions"><button data-close="clear-dialog">Conserva el bucle</button><button id="confirm-clear">Esborra les capes</button></div></dialog>
 </body>
 </html>

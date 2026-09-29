@@ -49,11 +49,11 @@ export class PianoEngine {
   applySettings(){if(!this.context)return;const t=this.context.currentTime,s=this.settings;this.filter.type=s.filter==='off'?'allpass':s.filter;smooth(this.filter.frequency,Math.min(frequency(s.cutoff),this.context.sampleRate*.45),t);smooth(this.filter.Q,s.filter==='off'?0:.5+s.resonance/100*10,t);smooth(this.reverbSend.gain,s.reverb/100*.7,t);smooth(this.delaySend.gain,s.delay/100*.55,t);}
   setVolume(value){this.volume=value;if(this.context)smooth(this.master.gain,value,this.context.currentTime);}
   setSustain(on){this.sustain=on;if(!on)for(const [id,v] of this.voices)if(v.deferred)this.release(id);}
-  noteOn(id,midi,velocity=.75){
+  noteOn(id,midi,velocity=.75,when=this.context?.currentTime){
     if(!this.context||(this.context.state==='suspended'&&!this.context.startRendering))return;
     if(this.voices.has(id))this.release(id,.01);
-    while(this.allVoices.size>=24){const oldest=this.allVoices.values().next().value;oldest.env.disconnect();for(const source of oldest.sources){try{source.stop(this.context.currentTime+.005);}catch{}}this.allVoices.delete(oldest);if(this.voices.get(oldest.id)===oldest)this.voices.delete(oldest.id);}
-    const c=this.context,t=c.currentTime,f=440*2**((midi-69)/12),env=c.createGain(),nodes=[],sources=[];
+    while(!this.context.startRendering&&this.allVoices.size>=24){const oldest=this.allVoices.values().next().value;this.onrelease?.(oldest.id,this.context.currentTime);oldest.env.disconnect();for(const source of oldest.sources){try{source.stop(this.context.currentTime+.005);}catch{}}this.allVoices.delete(oldest);if(this.voices.get(oldest.id)===oldest)this.voices.delete(oldest.id);}
+    const c=this.context,t=Math.max(c.currentTime,when??c.currentTime),f=440*2**((midi-69)/12),env=c.createGain(),nodes=[],sources=[];
     env.connect(this.input);let level=.24*velocity,decay=0,tail=.7;
     const osc=(type,hz,gain=1,detune=0)=>{const o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.value=hz;o.detune.value=detune;g.gain.value=gain;o.connect(g).connect(env);nodes.push(g);sources.push(o);return o;};
     if((this.preset.id==='grand'||this.preset.id==='soft')&&this.samples.size){
@@ -72,14 +72,14 @@ export class PianoEngine {
     const attack=attackSeconds(this.settings.attack);env.gain.setValueAtTime(0,t);env.gain.linearRampToValueAtTime(level,t+attack);if(decay)env.gain.exponentialRampToValueAtTime(Math.max(.0001,level*tail),t+attack+decay);
     const voice={id,env,nodes,sources,midi,released:false,deferred:false};this.voices.set(id,voice);this.allVoices.add(voice);let ended=0;
     const dispose=()=>{if(++ended<sources.length)return;env.disconnect();for(const node of [...nodes,...sources])node.disconnect();this.allVoices.delete(voice);if(this.voices.get(id)===voice)this.voices.delete(id);this.onchange();};
-    for(const source of sources){source.onended=dispose;source.start(t);}this.onchange();return voice;
+    for(const source of sources){source.onended=dispose;source.start(t);}this.onattack?.({id,midi,velocity,time:t});this.onchange();return voice;
   }
   noteOff(id){const v=this.voices.get(id);if(!v)return;if(this.sustain){v.deferred=true;return;}this.release(id);}
-  release(id,duration=releaseSeconds(this.settings.release)){
-    const v=this.voices.get(id);if(!v||v.released)return;v.released=true;const t=this.context.currentTime,g=v.env.gain;
+  release(id,duration=releaseSeconds(this.settings.release),when=this.context?.currentTime){
+    const v=this.voices.get(id);if(!v||v.released)return;v.released=true;const t=Math.max(this.context.currentTime,when??this.context.currentTime),g=v.env.gain;
     if(g.cancelAndHoldAtTime)g.cancelAndHoldAtTime(t);else{g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);}
     g.linearRampToValueAtTime(0,t+duration);for(const source of v.sources){try{source.stop(t+duration+.025);}catch{}}
-    this.voices.delete(id);this.onchange();
+    this.voices.delete(id);this.onrelease?.(id,t);this.onchange();
   }
-  panic(){if(!this.context)return;for(const voice of this.allVoices){voice.env.disconnect();for(const source of voice.sources){try{source.stop(this.context.currentTime+.01);}catch{}}}this.voices.clear();this.allVoices.clear();this.onchange();this.sustain=false;this.buildEffects();this.applySettings();}
+  panic(){if(!this.context)return;for(const voice of this.allVoices){if(!voice.released)this.onrelease?.(voice.id,this.context.currentTime);voice.env.disconnect();for(const source of voice.sources){try{source.stop(this.context.currentTime+.01);}catch{}}}this.voices.clear();this.allVoices.clear();this.onchange();this.sustain=false;this.buildEffects();this.applySettings();}
 }
