@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17191c">
+  <meta name="description" content="Vori: un piano tàctil amb sis sons, filtres i efectes. Toca amb el mòbil, la tauleta o el teclat de l’ordinador.">
+  <title>Vori · Piano tàctil</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2327272e'/%3E%3Cpath d='M7 8h5v17H7zm7 0h5v17h-5zm7 0h4v17h-4z' fill='%23edeadd'/%3E%3Cpath d='M11 8h4v10h-4zm7 0h4v10h-4z' fill='%23688cff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <main class="studio">
+    <header class="masthead">
+      <div class="brand"><span class="brand-icon" aria-hidden="true">▥</span><h1>vori</h1><span class="brand-sub">PIANO TÀCTIL</span></div>
+      <div class="header-actions"><button id="help-button" class="icon-button" aria-label="Obre l’ajuda">?</button><button id="fullscreen" class="icon-button" aria-label="Pantalla completa">⛶</button><button id="power" class="power"><span class="led"></span><span id="power-label">Activa el so</span></button></div>
+    </header>
+    <section class="instrument" aria-label="Instrument">
+      <div class="topline"><span>INSTRUMENT 01</span><span class="topline-right">POLIFÒNIC · MULTITÀCTIL</span></div>
+      <section class="sound-section" aria-labelledby="sounds-heading">
+        <div class="section-label"><h2 id="sounds-heading">01 <span>Tria el teu so</span></h2><span id="sound-count">01 / 06</span></div>
+        <div id="presets" class="presets" aria-label="Sons"></div>
+      </section>
+      <div class="rack">
+        <section class="display-panel" aria-label="So seleccionat">
+          <div class="display-top"><span id="sound-family">PIANO ACÚSTIC</span><span id="voices">0 veus</span></div>
+          <h2 id="sound-name">Piano de cua</h2>
+          <p id="sound-description">Clar, càlid i ple de matisos.</p>
+          <canvas id="scope" aria-label="Forma d’ona del so" width="520" height="110"></canvas>
+          <div class="display-bottom"><span id="audio-status" role="status">Toca «Activa el so» per començar</span><span class="display-mark" aria-hidden="true">●</span></div>
+        </section>
+        <section class="controls-panel" aria-labelledby="filter-heading">
+          <div class="section-label"><h2 id="filter-heading">02 <span>Dona-li color</span></h2><button id="reset" class="text-button">Restableix</button></div>
+          <div class="filter-line"><label for="filter-type">Filtre</label><select id="filter-type"><option value="lowpass">Passabaix</option><option value="highpass">Passaalt</option><option value="bandpass">Passabanda</option><option value="off">Sense filtre</option></select></div>
+          <div class="knobs" id="tone-controls"></div>
+        </section>
+        <section class="controls-panel effects" aria-labelledby="effects-heading">
+          <div class="section-label"><h2 id="effects-heading">03 <span>Afegeix espai</span></h2><span class="fx-mark">FX</span></div>
+          <div class="effect-caption">Espai i repeticions</div>
+          <div class="knobs" id="effect-controls"></div>
+        </section>
+      </div>
+      <details class="envelope"><summary>Atac i durada <span>Modela l’inici i el final de cada nota</span></summary><div id="envelope-controls" class="envelope-controls"></div></details>
+      <section class="play-section" aria-label="Teclat de piano">
+        <div class="keyboard-toolbar">
+          <div class="octave-control"><span>Octava</span><button id="octave-down" aria-label="Baixa una octava">−</button><output id="octave">4</output><button id="octave-up" aria-label="Puja una octava">+</button></div>
+          <div class="play-actions"><label class="width-control"><span>Tecles</span><select id="keyboard-size" aria-label="Nombre d’octaves visibles"><option value="1">1 octava</option><option value="2">2 octaves</option></select></label><button id="sustain" class="sustain" aria-pressed="false"><span class="pedal-icon" aria-hidden="true"></span>Pedal</button><button id="panic" class="panic" aria-label="Atura totes les notes">Silenci</button></div>
+        </div>
+        <div class="keybed"><div id="keyboard" class="keyboard" aria-label="Tecles del piano"></div></div>
+        <div class="under-keys"><span class="touch-hint">Toca, fes acords i llisca entre les tecles.</span><span class="desktop-hint">A S D F G H J K · Espai: pedal</span><label class="volume">Volum <input id="volume" type="range" min="0" max="100" value="65"><output id="volume-value">65%</output></label></div>
+      </section>
+      <div class="bottomline"><span>FET PER TOCAR.</span><span>VORI / 001</span></div>
+    </section>
+    <footer><span>El teu petit espai per fer música.</span><button id="credits-button" class="text-button">Ajuda i crèdits</button></footer>
+  </main>
+  <dialog id="help"><div class="dialog-heading"><h2>A les teves mans.</h2><button id="close-help" class="icon-button" aria-label="Tanca l’ajuda">×</button></div><p>Activa el so i toca. Pots prémer diverses tecles alhora per fer acords, o lliscar un dit pel teclat.</p><ul><li><strong>Sons:</strong> cada so carrega els seus ajustos inicials.</li><li><strong>Filtre:</strong> el passabaix suavitza els aguts; el passaalt retalla els greus; el passabanda destaca una zona.</li><li><strong>Ressonància:</strong> accentua la freqüència del filtre.</li><li><strong>Reverberació i eco:</strong> afegeixen espai i repeticions.</li><li><strong>Pedal:</strong> manté les notes després de deixar les tecles.</li><li><strong>Volum tàctil:</strong> toca més avall a la tecla per donar més força a la nota.</li></ul><p>A l’ordinador: <kbd>A W S E D F T G Y H U J K O L P ;</kbd>. Mantén <kbd>Espai</kbd> per al pedal i prem <kbd>Esc</kbd> per aturar-ho tot. Les dreceres s’aturen mentre ajustes un control.</p><p>Al mòbil, gira la pantalla per disposar de més espai. Si no sona, comprova el volum multimèdia i el mode silenciós del dispositiu.</p><p id="sample-credit" class="credits">Piano: Salamander Grand Piano, Alexander Holm. <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener noreferrer">CC BY 3.0</a>. Mostres MP3 de <a href="https://github.com/Tonejs/audio/tree/master/salamander" target="_blank" rel="noopener noreferrer">Tone.js</a>, afinades durant la reproducció. La resta de sons es generen al navegador.</p></dialog>
+  <noscript>Cal activar JavaScript per tocar el piano.</noscript>
+</body>
+</html>
