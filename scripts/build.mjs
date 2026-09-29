@@ -1,7 +1,7 @@
 import {readFile,writeFile,readdir,mkdir} from 'node:fs/promises';
 import {resolve,relative,extname} from 'node:path';
 const project=resolve(import.meta.dirname,'..'),root=resolve(project,'dist');
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.mp3':'audio/mpeg','.txt':'text/plain; charset=utf-8'};
+const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.mp3':'audio/mpeg','.woff2':'font/woff2','.txt':'text/plain; charset=utf-8'};
 const assets={};
 async function walk(dir){for(const file of await readdir(dir,{withFileTypes:true})){if(file.name==='server'||file.name==='.openai')continue;const p=resolve(dir,file.name);if(file.isDirectory())await walk(p);else{const route='/'+relative(root,p).replaceAll('\\','/');assets[route]={type:types[extname(p)]||'application/octet-stream',base64:(await readFile(p)).toString('base64')};}}}
 await walk(root);

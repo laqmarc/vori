@@ -5,7 +5,7 @@ import {apiRequest} from '../server/api.mjs';
 import {localDatabase} from './local-db.mjs';
 const root=resolve(import.meta.dirname,'../dist');
 const DB=localDatabase(resolve(import.meta.dirname,'../.local'));
-const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json','.mp3':'audio/mpeg','.txt':'text/plain; charset=utf-8'};
+const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json','.mp3':'audio/mpeg','.woff2':'font/woff2','.txt':'text/plain; charset=utf-8'};
 http.createServer(async(req,res)=>{try{
   const url=new URL(req.url,'http://127.0.0.1:4175'),pathname=decodeURIComponent(url.pathname);
   if(pathname.startsWith('/api/')){
